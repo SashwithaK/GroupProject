@@ -12,15 +12,21 @@ public class OCRService {
 
     private final ITesseract tesseract;
 
-  public OCRService() {
-    this.tesseract = new Tesseract();
+    @org.springframework.beans.factory.annotation.Value("${tesseract.datapath:C:\\Program Files\\Tesseract-OCR\\tessdata}")
+    private String datapath;
 
-    // ✅ Path where Tesseract is installed
-    this.tesseract.setDatapath("C:\\Program Files\\Tesseract-OCR\\tessdata");
+    public OCRService() {
+        this.tesseract = new Tesseract();
+    }
 
-    // ✅ Language file
-    this.tesseract.setLanguage("eng");
-}
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        // If datapath is provided and exists, use it. Otherwise rely on system default (for Linux/Docker)
+        if (datapath != null && !datapath.isEmpty() && new File(datapath).exists()) {
+            this.tesseract.setDatapath(datapath);
+        }
+        this.tesseract.setLanguage("eng");
+    }
 
 
     public String extractText(File imageFile) {
