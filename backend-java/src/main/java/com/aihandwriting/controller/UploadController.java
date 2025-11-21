@@ -48,7 +48,11 @@ public class UploadController {
                     .extractedText(extractedText)
                     .structuredJson(structuredJson)
                     .build();
+<<<<<<< HEAD
                 uploadRecordRepository.save(record);
+=======
+                UploadRecord saved = uploadRecordRepository.save(record);
+>>>>>>> 930dd37ce3eb7fa7c04c62e30b990d5ca0a50324
 
                 // Return the structured node directly as the response body
                 return ResponseEntity.ok(structuredNode);
