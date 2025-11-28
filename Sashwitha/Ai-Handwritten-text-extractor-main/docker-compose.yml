@@ -1,0 +1,42 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    environment:
+      PYTHONUNBUFFERED: 1
+      # Override LANGFUSE_HOST to connect to host's Langfuse instance
+      # host.docker.internal allows Docker container to access host machine
+      LANGFUSE_HOST: http://host.docker.internal:3001
+      # Override OLLAMA_HOST to connect to host's Ollama instance
+      OLLAMA_HOST: http://host.docker.internal:11434
+    extra_hosts:
+      # Enable access to host machine's localhost
+      - "host.docker.internal:host-gateway"
+    networks:
+      - app-network
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge

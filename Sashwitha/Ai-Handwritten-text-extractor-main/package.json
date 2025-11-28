@@ -1,0 +1,30 @@
+{
+  "name": "ai-handwritten-text-extractor",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "npm test --prefix frontend",
+    "test:ui": "npm run test:ui --prefix frontend",
+    "test:headed": "npm run test:headed --prefix frontend"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "playwright": "^1.57.0"
+  },
+  "description": "A full-stack web application for extracting text from handwritten images using AI vision technology.",
+  "main": "playwright.config.js",
+  "dependencies": {
+    "playwright-core": "^1.57.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SashwithaK/GroupProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SashwithaK/GroupProject/issues"
+  },
+  "homepage": "https://github.com/SashwithaK/GroupProject#readme"
+}
