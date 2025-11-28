@@ -10,7 +10,7 @@ This repository contains the work of our group project. Below are the details of
 | Gurunath Mahadev Jadhav | [Main Branch]    |  (#)  |
 | KIRAN KUMAR S           | [Main Branch]    |  (#)  |
 | Manoj Kumar B           | [Main Branch]    |  (#)  |
-| Sashwitha K             | [Sashwitha]      |  (https://github.com/SashwithaK/GroupProject.git)  |
+| Sashwitha K             | [Sashwitha]      |  ((https://github.com/SashwithaK/GroupProject/tree/sashwitha))  |
 | Varsha Reddy            | [Main Branch]    |  (#)  |
 | Yogesh G                | [Main Branch]    |  (#)  |
 
