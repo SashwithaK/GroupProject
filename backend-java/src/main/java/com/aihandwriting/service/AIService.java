@@ -18,7 +18,7 @@ public class AIService {
 
     // IMPORTANT: supply this via application.properties or environment variable.
     // Do NOT hard-code keys in source.
-   
+
     @Value("${openai.api.key:}")
     private String openAiKey;
 
@@ -29,46 +29,48 @@ public class AIService {
 
     /**
      * Extract structured JSON from raw OCR text by calling OpenAI chat completions.
-     * Returns a JSON string. If OpenAI key is missing or API fails, returns a safe fallback JSON.
+     * Returns a JSON string. If OpenAI key is missing or API fails, returns a safe
+     * fallback JSON.
      */
     public String extractStructuredData(String rawText) {
         try {
             if (openAiKey == null || openAiKey.isBlank()) {
+                System.err.println("AIService: OpenAI API key is missing or blank.");
                 return buildAgentFallback(rawText, "OpenAI API key not configured.");
             }
 
-                        // Improved prompt for better field extraction
-                        String system = """
-                                        You are an expert at extracting structured data from handwritten forms and OCR text.
-                                        Your task is to carefully identify and extract ALL available information from the provided text.
-                                        
-                                        CRITICAL: Return ONLY a valid JSON object with these exact fields:
-                                        {
-                                            "name": "extracted full name or null",
-                                            "phone": "extracted phone number or null",
-                                            "email": "extracted email address or null",
-                                            "address": "extracted full address or null",
-                                            "postcode": "extracted postcode/zip or null",
-                                            "dob": "extracted date of birth or null",
-                                            "ocrText": "the raw OCR input text"
-                                        }
-                                        
-                                        EXTRACTION RULES:
-                                        - Name: Full name in Title Case (e.g., "Paula Butler", "John Smith")
-                                        - Phone: Standardized format with country code if visible (e.g., "+44 20 7123 4567", "020 7123 4567")
-                                        - Email: Lowercase email address (e.g., "paulab400@mail.com")
-                                        - Address: Complete street address, city, and region on one line
-                                        - Postcode: Only the postal/zip code (e.g., "87654", "AP 87654")
-                                        - DOB: Date format YYYY-MM-DD if possible, or any clear date format
-                                        - ocrText: Include the complete raw input as provided
-                                        
-                                        IMPORTANT:
-                                        - If ANY value is unclear or missing, use null (not empty string)
-                                        - Do NOT include markdown, code fences, or explanations
-                                        - Return ONLY the JSON object, nothing else
-                                        """;
+            // Improved prompt for better field extraction
+            String system = """
+                    You are an expert at extracting structured data from handwritten forms and OCR text.
+                    Your task is to carefully identify and extract ALL available information from the provided text.
 
-                        String user = "OCR input:\n" + rawText + "\n\nReturn only the JSON object in the schema described.";
+                    CRITICAL: Return ONLY a valid JSON object with these exact fields:
+                    {
+                        "name": "extracted full name or null",
+                        "phone": "extracted phone number or null",
+                        "email": "extracted email address or null",
+                        "address": "extracted full address or null",
+                        "postcode": "extracted postcode/zip or null",
+                        "dob": "extracted date of birth or null",
+                        "ocrText": "the raw OCR input text"
+                    }
+
+                    EXTRACTION RULES:
+                    - Name: Full name in Title Case (e.g., "Paula Butler", "John Smith")
+                    - Phone: Standardized format with country code if visible (e.g., "+44 20 7123 4567", "020 7123 4567")
+                    - Email: Lowercase email address (e.g., "paulab400@mail.com")
+                    - Address: Complete street address, city, and region on one line
+                    - Postcode: Only the postal/zip code (e.g., "87654", "AP 87654")
+                    - DOB: Date format YYYY-MM-DD if possible, or any clear date format
+                    - ocrText: Include the complete raw input as provided
+
+                    IMPORTANT:
+                    - If ANY value is unclear or missing, use null (not empty string)
+                    - Do NOT include markdown, code fences, or explanations
+                    - Return ONLY the JSON object, nothing else
+                    """;
+
+            String user = "OCR input:\n" + rawText + "\n\nReturn only the JSON object in the schema described.";
 
             Map<String, Object> requestBody = Map.of(
                     "model", "gpt-4o-mini",
@@ -77,8 +79,7 @@ public class AIService {
                             Map.of("role", "user", "content", user)
                     },
                     "max_tokens", 1024,
-                    "temperature", 0.0
-            );
+                    "temperature", 0.0);
 
             String requestJson = mapper.writeValueAsString(requestBody);
 
@@ -95,6 +96,7 @@ public class AIService {
             String body = resp.body();
 
             if (status / 100 != 2) {
+                System.err.println("AIService: OpenAI API error. Status: " + status + ", Body: " + body);
                 if (status == 401) {
                     return buildAgentFallback(rawText, "OpenAI returned 401 Unauthorized - check API key.");
                 }
@@ -104,20 +106,23 @@ public class AIService {
             JsonNode root = mapper.readTree(body);
             JsonNode choices = root.path("choices");
             if (!choices.isArray() || choices.size() == 0) {
+                System.err.println("AIService: OpenAI returned no choices.");
                 return buildAgentFallback(rawText, "OpenAI returned no choices.");
             }
 
             String assistantText = choices.get(0).path("message").path("content").asText();
             String jsonResult = tryExtractJsonFromAssistant(assistantText);
             if (jsonResult == null) {
+                System.err.println("AIService: Failed to extract JSON from OpenAI response: " + assistantText);
                 return buildAgentFallback(rawText, "OpenAI returned non-JSON output.");
             }
             JsonNode parsed = mapper.readTree(jsonResult);
 
             // Build the requested schema:
             // {
-            //   "document_type": string,
-            //   "pages": [ { "page": number, "fields": [ {name,value,confidence} ], "tables": [] } ]
+            // "document_type": string,
+            // "pages": [ { "page": number, "fields": [ {name,value,confidence} ], "tables":
+            // [] } ]
             // }
             ObjectNode out = mapper.createObjectNode();
             out.put("document_type", "handwritten_form");
@@ -127,8 +132,9 @@ public class AIService {
 
             ArrayNode fields = mapper.createArrayNode();
 
-            // Map fields from the simplified response - only include fields that are present
-            String[] keys = new String[]{"name", "phone", "email", "address", "postcode", "dob", "ocrText"};
+            // Map fields from the simplified response - only include fields that are
+            // present
+            String[] keys = new String[] { "name", "phone", "email", "address", "postcode", "dob", "ocrText" };
             for (String k : keys) {
                 JsonNode v = parsed.path(k);
                 boolean missing = v.isMissingNode() || v.isNull() || (v.isTextual() && v.asText().isBlank());
@@ -182,7 +188,8 @@ public class AIService {
         }
     }
 
-    // New fallback for agent schema — returns the same structured schema with empty/default values
+    // New fallback for agent schema — returns the same structured schema with
+    // empty/default values
     private String buildAgentFallback(String rawText, String note) throws Exception {
         ObjectNode out = mapper.createObjectNode();
         out.put("document_type", "unknown");
@@ -192,8 +199,10 @@ public class AIService {
 
         ArrayNode fields = mapper.createArrayNode();
 
-        // Only include OCR text and an explanatory note in the fallback so consumers can still
-        // see the raw input and the error reason. Do not add empty fields for absent structured values.
+        // Only include OCR text and an explanatory note in the fallback so consumers
+        // can still
+        // see the raw input and the error reason. Do not add empty fields for absent
+        // structured values.
         if (rawText != null && !rawText.isBlank()) {
             ObjectNode ocr = mapper.createObjectNode();
             ocr.put("name", "ocrText");
@@ -221,7 +230,8 @@ public class AIService {
     }
 
     private static String tryExtractJsonFromAssistant(String assistantText) {
-        if (assistantText == null) return null;
+        if (assistantText == null)
+            return null;
         assistantText = assistantText.trim();
 
         // remove code fences if present
@@ -237,7 +247,8 @@ public class AIService {
             final ObjectMapper m = new ObjectMapper();
             m.readTree(assistantText);
             return assistantText;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         // fallback: extract first balanced JSON object
         String candidate = extractFirstJsonObject(assistantText);
@@ -245,7 +256,8 @@ public class AIService {
     }
 
     private static String extractFirstJsonObject(String text) {
-        if (text == null) return null;
+        if (text == null)
+            return null;
         int len = text.length();
         int start = -1;
         int depth = 0;
@@ -255,12 +267,15 @@ public class AIService {
             if (c == '"' && (i == 0 || text.charAt(i - 1) != '\\')) {
                 inString = !inString;
             }
-            if (inString) continue;
+            if (inString)
+                continue;
             if (c == '{') {
-                if (start == -1) start = i;
+                if (start == -1)
+                    start = i;
                 depth++;
             } else if (c == '}') {
-                if (depth > 0) depth--;
+                if (depth > 0)
+                    depth--;
                 if (depth == 0 && start != -1) {
                     return text.substring(start, i + 1);
                 }
