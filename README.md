@@ -9,7 +9,7 @@ This repository contains the work of our group project. Below are the details of
 | Gagan R                 | [Main Branch]|   |  (#)  |
 | Gurunath Mahadev Jadhav | [Main Branch]    |  (#)  |
 | KIRAN KUMAR S           | [Main Branch]    |  (#)  |
-| Manoj Kumar B           | [Main Branch]    |  (#)  |
+| Manoj Kumar B           | [Manoj_Project]  |  [Click Here](https://github.com/SashwithaK/GroupProject/tree/manoj-project/Manoj_Project/fullstack_app)|
 | Sashwitha K             | [Sashwitha]      |  [Click Here](https://github.com/SashwithaK/GroupProject/tree/sashwitha/Sashwitha/Ai-Handwritten-text-extractor-main)|
 | Varsha Reddy            | [Main Branch]    |  (#)  |
 | Yogesh G                | [Main Branch]    |  (#)  |
