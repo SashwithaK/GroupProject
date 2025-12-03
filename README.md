@@ -6,7 +6,7 @@ This repository contains the work of our group project. Below are the details of
 
 | Name                    | Main Branch      |  Link |
 |-------------------------|------------------|------ |
-| Gagan R                 | [Main Branch]|   |  [Click Here](https://github.com/SashwithaK/GroupProject/tree/gagan)|
+| Gagan R                 | [Main Branch]    |  [Click Here](https://github.com/SashwithaK/GroupProject/tree/gagan)  |
 | Gurunath Mahadev Jadhav | [Main Branch]    |  [Click Here](https://github.com/Gurunath407/Ai-Handwritten-form-data-extractor)|
 | KIRAN KUMAR S           | [Main Branch]    |  (#)  |
 | Manoj Kumar B           | [Manoj_Project]  |  [Click Here](https://github.com/SashwithaK/GroupProject/tree/manoj-project/Manoj_Project/fullstack_app)|
