@@ -1,0 +1,15 @@
+.env
+test-results/
+node_modules/
+
+LANGUAGE_TEST_GUIDE.md
+Playwright.config.ts
+README_TESTS.md
+README.docker.md
+sample_invoice.pdf
+SERVICE_STATUS.md
+task.md
+TEST_DOCUMENTATION
+test_invoice.txt
+TEST_SUMMARY.md
+test-results.json
